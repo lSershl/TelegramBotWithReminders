@@ -1,7 +1,9 @@
-﻿using Telegram.BotAPI.Extensions;
+﻿using Bot.Contracts.Enums;
 using Telegram.BotAPI;
 using Telegram.BotAPI.AvailableMethods;
-using Bot.Contracts.Enums;
+using Telegram.BotAPI.AvailableTypes;
+using Telegram.BotAPI.Extensions;
+using Telegram.BotAPI.GettingUpdates;
 
 namespace Bot.BackgroundWork.Services
 {
@@ -9,11 +11,7 @@ namespace Bot.BackgroundWork.Services
     {
         private readonly ILogger<ReminderBot> logger;
         private readonly IServiceScopeFactory scopeFactory;
-        private ReminderCreationStatus status;
-
-        private string tempDescription = string.Empty;
-        private string tempDate = string.Empty;
-        private int tempPreRemindDays = 1;
+        private ReminderCreationStatus status = ReminderCreationStatus.Empty;
 
         public ReminderBot(ILogger<ReminderBot> logger, IConfiguration configuration, IServiceScopeFactory scopeFactory)
         {
@@ -24,6 +22,10 @@ namespace Bot.BackgroundWork.Services
             this.Client = new TelegramBotClient(botToken!);
 
             string? myUsername = this.Client.GetMe().Username!;
+
+            this.Client.SetMyCommands([new BotCommand("help", "Справка по командам")]);
+            this.Client.DeleteWebhook();
+
             // This will provide a better command filtering.
             this.SetCommandExtractor(myUsername);
         }

@@ -8,10 +8,12 @@ namespace Bot.Contracts.Entities
         public required string ChatId { get; set; }
         public required string Description { get; set; }
         public DateTime ReminderDate { get; set; }
+        public required string PreReminderJobId { get; set; }
+        public required string ReminderJobId { get; set; }
 
         public static ReminderDto AsDto(Reminder reminder)
         {
-            return new ReminderDto(reminder.Id, reminder.ChatId, reminder.Description, reminder.ReminderDate.ToShortDateString());
+            return new ReminderDto(reminder.Id, reminder.ChatId, reminder.Description, reminder.ReminderDate.ToShortDateString(), reminder.PreReminderJobId, reminder.ReminderJobId);
         }
     }
 }

@@ -11,8 +11,11 @@ namespace Bot.Persistence.Repositories
         private readonly RemindersDbContext db = dbContext;
         public async Task<List<ReminderDto>> GetRemindersAsync(string chatId)
         {
-            var remindersList = await db.Reminders.Where(x => x.ChatId == chatId).ToListAsync();
-            RemoveOutdatedRemindersAsync(remindersList);
+            var remindersList = await db.Reminders
+                .Where(x => x.ChatId == chatId)
+                .OrderBy(x => x.ReminderDate)
+                .ToListAsync();
+            DeleteOutdatedRemindersAsync(remindersList);
             var result = new List<ReminderDto>();
             foreach (var item in remindersList)
             {
@@ -28,12 +31,14 @@ namespace Bot.Persistence.Repositories
                 Id = reminderDto.Id,
                 ChatId = reminderDto.ChatId,
                 Description = reminderDto.Description,
-                ReminderDate = DateTime.Parse(reminderDto.ReminderDate).AtNoon().ToUniversalTime()
+                ReminderDate = DateTime.Parse(reminderDto.ReminderDate).AtNoon().ToUniversalTime(),
+                PreReminderJobId = reminderDto.PreReminderJobId,
+                ReminderJobId = reminderDto.ReminderJobId
             });
             await db.SaveChangesAsync();
         }
 
-        public async void RemoveOutdatedRemindersAsync(List<Reminder> remindersList)
+        public async void DeleteOutdatedRemindersAsync(List<Reminder> remindersList)
         {
             foreach (var item in remindersList)
             {
@@ -42,6 +47,13 @@ namespace Bot.Persistence.Repositories
                     db.Remove(item);
                 }
             }
+            await db.SaveChangesAsync();
+        }
+
+        public async void ClearAllRemindersAsync(string chatId)
+        {
+            var remindersList = await db.Reminders.Where(x => x.ChatId == chatId).ToListAsync();
+            db.Reminders.RemoveRange(remindersList);
             await db.SaveChangesAsync();
         }
     }

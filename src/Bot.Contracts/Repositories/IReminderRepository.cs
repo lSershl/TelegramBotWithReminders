@@ -7,6 +7,7 @@ namespace Bot.Contracts.Repositories
     {
         Task<List<ReminderDto>> GetRemindersAsync(string chatId);
         void CreateReminderAsync(ReminderDto reminderDto);
-        void RemoveOutdatedRemindersAsync(List<Reminder> remindersList);
+        void DeleteOutdatedRemindersAsync(List<Reminder> remindersList);
+        void ClearAllRemindersAsync(string chatId);
     }
 }
